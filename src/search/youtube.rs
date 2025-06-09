@@ -334,7 +334,8 @@ impl Default for PlaylistSearchOptions {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum SearchResult {
     Video(Video),
     Playlist(Playlist),
@@ -452,7 +453,7 @@ impl Default for EmbedOptions {
     }
 }
 
-#[derive(Clone, derivative::Derivative, Serialize)]
+#[derive(Clone, derivative::Derivative, Serialize, Deserialize)]
 #[derivative(Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Playlist {
@@ -468,7 +469,7 @@ pub struct Playlist {
     #[serde(skip_serializing)]
     #[derivative(PartialEq = "ignore")]
     continuation: Option<Continuation>,
-    #[serde(skip_serializing)]
+    #[serde(skip_serializing, skip_deserializing)]
     #[derivative(PartialEq = "ignore")]
     client: reqwest_middleware::ClientWithMiddleware,
 }
@@ -1221,7 +1222,7 @@ impl Playlist {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Continuation {
     api: Option<String>,
     token: Option<String>,
