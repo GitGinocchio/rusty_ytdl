@@ -136,6 +136,8 @@ impl YouTube {
         )
         .await;
 
+        println!("{}", res);
+
         // make_request success
         if !res.is_null()
             && !res["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]
@@ -288,6 +290,10 @@ pub enum SearchType {
     Playlist,
     #[display("Film")]
     Film,
+    #[display("Music")]
+    Music,
+    #[display("FourToTwenty")]
+    FourToTwenty,
     #[display("All")]
     All,
 }
@@ -1246,6 +1252,8 @@ fn filter_string(filter: &SearchType) -> String {
         SearchType::Channel => "EgIQAg%253D%253D".to_string(),
         SearchType::Playlist => "EgIQAw%253D%253D".to_string(),
         SearchType::Film => "EgIQBA%253D%253D".to_string(),
+        SearchType::Music => "EgIQAQ%3D%3D".to_string(),
+        SearchType::FourToTwenty  => "EgIYAw%253D%253D".to_string(),
         SearchType::All => "".to_string(),
     }
 }
@@ -1373,6 +1381,10 @@ async fn make_request(
     headers.insert(
         reqwest::header::CONTENT_TYPE,
         reqwest::header::HeaderValue::from_str("application/json").unwrap(),
+    );
+    headers.insert(
+        reqwest::header::USER_AGENT,
+        reqwest::header::HeaderValue::from_str("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36").unwrap(),
     );
     headers.insert(
         reqwest::header::HOST,
