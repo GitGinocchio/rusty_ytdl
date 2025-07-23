@@ -24,7 +24,7 @@ use crate::{
     },
     utils::{
         between, choose_format, clean_video_details, get_functions, get_html, get_html5player, get_random_v6_ip, get_video_id, get_visitor_data, get_ytconfig, is_age_restricted_from_html, is_live, is_not_yet_broadcasted, is_play_error, is_player_response_error, is_private_video, is_rental, parse_live_video_formats, parse_video_formats, sort_formats
-    },
+    }, VideoFormat,
 };
 
 #[derive(Clone, derive_more::Display, derivative::Derivative)]
@@ -292,12 +292,16 @@ impl<'opts> Video<'opts> {
     ///           println!("{:#?}", chunk);
     ///     }
     /// ```
-    pub async fn stream(&self) -> Result<Box<dyn Stream + Send + Sync>, VideoError> {
+    pub async fn stream(&self, format: Option<VideoFormat>) -> Result<Box<dyn Stream + Send + Sync>, VideoError> {
         let client = &self.client;
 
-        let info = self.get_info().await?;
-        let format = choose_format(&info.formats, &self.options)
-            .map_err(|_op| VideoError::VideoSourceNotFound)?;
+        let format = if let Some(fmt) = format {
+            fmt
+        } else {
+            let info = self.get_info().await?;
+            choose_format(&info.formats, &self.options)
+                .map_err(|_op| VideoError::VideoSourceNotFound)?  
+        };
 
         let link = format.url;
 
@@ -461,7 +465,7 @@ impl<'opts> Video<'opts> {
     pub async fn download<P: AsRef<Path>>(&self, path: P) -> Result<(), VideoError> {
         use std::{fs::File, io::Write};
 
-        let stream = self.stream().await?;
+        let stream = self.stream(None).await?;
 
         let mut file = File::create(path).map_err(|e| VideoError::DownloadError(e.to_string()))?;
 
